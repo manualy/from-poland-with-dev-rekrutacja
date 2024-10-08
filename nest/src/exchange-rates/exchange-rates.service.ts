@@ -10,7 +10,13 @@ import { catchError, firstValueFrom, retry } from 'rxjs';
 import { AxiosError } from 'axios';
 import { ExchangeRateDto } from './dto/exchange-rate.dto';
 import { validateOrReject } from 'class-validator';
-import { plainToInstance } from 'class-transformer';
+import {
+  classToPlain,
+  instanceToInstance,
+  instanceToPlain,
+  plainToClass,
+  plainToInstance,
+} from 'class-transformer';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CurrencyTransaction } from './entities/currency-transaction.entity';
 import { Repository } from 'typeorm';
@@ -91,10 +97,9 @@ export class ExchangeRatesService {
         timestamp: new Date(),
       });
 
-      const savedTransaction =
-        await this.currencyTransactionRepository.save(currencyTransaction);
-
-      return savedTransaction;
+      return instanceToPlain(
+        await this.currencyTransactionRepository.save(currencyTransaction),
+      );
     } catch (error) {
       this.logger.error('Error saving transaction:', error.message);
       throw new BadRequestException("Couldn't process transaction.");
